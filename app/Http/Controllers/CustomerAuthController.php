@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
-
 use App\Models\Theme;
 
 class CustomerAuthController extends Controller
@@ -14,24 +13,20 @@ class CustomerAuthController extends Controller
     public function __construct()
     {
         $theme = Theme::where('status', 'active')->first();
-        if ($theme) {
-            $this->themeFolder = $theme->folder;
-        } else {
-            $this->themeFolder = 'default';
-        }
+        $this->themeFolder = $theme ? $theme->folder : 'default';
     }
 
     public function login()
     {
-        return view($this->themeFolder.'.customer.login',[
-            'title'=>'Login'
+        return view('theme.' . $this->themeFolder . '.customer.login', [
+            'title' => 'Login'
         ]);
     }
 
     public function register()
     {
-        return view($this->themeFolder.'.customer.register',[
-            'title'=>'Register'
+        return view('theme.' . $this->themeFolder . '.customer.register', [
+            'title' => 'Register'
         ]);
     }
 
@@ -44,21 +39,20 @@ class CustomerAuthController extends Controller
             'password_confirmation' => 'required'
         ]);
 
-        if($validasi->fails()){
+        if ($validasi->fails()) {
             return redirect()->back()
-                ->with('errorMessage', 'Validasi error, silahkan cek kembali data anda')
+                ->with('errorMessage', 'Validasi error, silakan cek kembali data Anda')
                 ->withErrors($validasi)
                 ->withInput();
-        }else{
+        } else {
             $customer = new Customer;
             $customer->name = $request->name;
             $customer->email = $request->email;
             $customer->password = \Hash::make($request->password);
             $customer->save();
 
-            //jika berhasil tersimpan, maka redirect ke halaman login
             return redirect()->route('customer.login')
-                ->with('successMessage','Registrasi Berhasil');
+                ->with('successMessage', 'Registrasi Berhasil');
         }
     }
 
@@ -73,7 +67,7 @@ class CustomerAuthController extends Controller
 
         if ($validasi->fails()) {
             return redirect()->back()
-                ->with('errorMessage', 'Validasi error, silahkan cek kembali data anda')
+                ->with('errorMessage', 'Validasi error, silakan cek kembali data Anda')
                 ->withErrors($validasi)
                 ->withInput();
         }
@@ -81,10 +75,9 @@ class CustomerAuthController extends Controller
         $customer = Customer::where('email', $credentials['email'])->first();
 
         if ($customer && \Hash::check($credentials['password'], $customer->password)) {
-            // Login
             \Auth::guard('customer')->login($customer);
 
-            return redirect()->route('home')
+            return redirect()->route('dashboard')
                 ->with('successMessage', 'Login berhasil');
         } else {
             return redirect()->back()

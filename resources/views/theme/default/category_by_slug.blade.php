@@ -1,25 +1,40 @@
 <x-layout>
-    <x-slot name="title">{{ $category->name }}</x-slot>
+    <x-slot name="title">Products</x-slot>
+    <style>
+    body, html {
+        margin: 0;
+        padding: 50;
+        background-color: #8B0000;
+    }
 
-    <div class="container py-4">
-        <div class="row mb-4">
-            <div class="col">
-                <h3 class="mb-2" style="font-size: 1.7rem;">{{ $category->name }}</h3>
-                <p class="text-muted">{{ $category->description }}</p>
-            </div>
+    .container {
+        background-color: transparent !important;
+    }
+</style>
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-warning" style="font-size: 1.5rem;">Kategori Product</h3>
+            <form action="{{ url()->current() }}" method="GET" class="d-flex" style="max-width: 300px;">
+                <input type="text" name="search" class="form-control me-2" placeholder="Cari produk..." value="{{ request('search') }}">
+                <button type="submit" class="btn btn-warning">Cari</button>
+            </form>
         </div>
+
         <div class="row">
             @forelse($products as $product)
                 <div class="col-md-3 mb-4">
                     <div class="card product-card h-100 shadow-sm">
-                        <img src="{{ $product->image_url ? $product->image_url : 'https://via.placeholder.com/350x200?text=No+Image' }}" class="card-img-top" alt="{{ $product->name }}">
+                        <img src="{{ $product->image_url ? asset($product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}" 
+                             class="card-img-top" 
+                             alt="{{ $product->name }}"
+                             style="height: 200px; object-fit: cover; width: 100%;">
 
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $product->name }}</h5>
                             <p class="card-text text-truncate">{{ $product->description }}</p>
                             <div class="mt-auto">
-                                <span class="fw-bold text-primary">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                                <a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline-primary btn-sm float-end">Lihat Detail</a>
+                                <span class="fw-bold text-black">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                <a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline-warning btn-sm float-end">Lihat Detail</a>
                             </div>
                         </div>
                     </div>
@@ -35,5 +50,4 @@
             </div>
         </div>
     </div>
-    
 </x-layout>

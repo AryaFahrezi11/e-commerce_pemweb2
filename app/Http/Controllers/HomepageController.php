@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Categories;
 use App\Models\Product;
-
 use App\Models\Theme;
-use \Binafy\LaravelCart\Models\Cart;
+use Binafy\LaravelCart\Models\Cart;
 
 class HomepageController extends Controller
 {
@@ -17,112 +15,108 @@ class HomepageController extends Controller
     public function __construct()
     {
         $theme = Theme::where('status', 'active')->first();
-        if ($theme) {
-            $this->themeFolder = $theme->folder;
-        } else {
-            $this->themeFolder = 'web';
-        }
+        $this->themeFolder = $theme ? $theme->folder : 'default';
     }
 
+    // Beranda
     public function index()
     {
         $categories = Categories::latest()->take(4)->get();
-        $products = Product::paginate(20);
-        
-        return view($this->themeFolder.'.homepage',[
+        $products = Product::where('is_active', true)->latest()->take(20)->get();
+
+        return view("theme.{$this->themeFolder}.homepage", [
+            'title' => 'Homepage',
             'categories' => $categories,
-            'products'=>$products,
-            'title'=>'Homepage'
+            'products' => $products,
         ]);
     }
 
+    // Halaman daftar produk
     public function products(Request $request)
     {
-        $title = "Products";
+        $query = Product::where('is_active', true);
 
-        $query = Product::query();
-
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         $products = $query->paginate(20);
 
-        return view($this->themeFolder.'.products',[
-            'title'=>$title,
+        return view("theme.{$this->themeFolder}.products", [
+            'title' => 'Produk',
             'products' => $products,
         ]);
     }
 
-    public function product($slug){
-        $product = Product::whereSlug($slug)->first();
-
-        if (!$product) {
-            return abort(404);
-        }
+    // Halaman detail produk
+    public function product($slug)
+    {
+        $product = Product::where('slug', $slug)->where('is_active', true)->firstOrFail();
 
         $relatedProducts = Product::where('product_category_id', $product->product_category_id)
             ->where('id', '!=', $product->id)
+            ->where('is_active', true)
             ->take(4)
             ->get();
 
-        return view($this->themeFolder.'.product', [
-            'slug' => $slug,
+        return view("theme.{$this->themeFolder}.product", [
+            'title' => $product->name,
             'product' => $product,
             'relatedProducts' => $relatedProducts,
         ]);
     }
 
+    // Halaman daftar kategori
     public function categories()
     {
         $categories = Categories::latest()->paginate(20);
 
-        return view($this->themeFolder.'.categories',[
-            'title'=>'Categories',
+        return view("theme.{$this->themeFolder}.categories", [
+            'title' => 'Kategori',
             'categories' => $categories,
         ]);
     }
 
+    // Halaman produk per kategori
     public function category($slug)
     {
-        $category = Categories::whereSlug($slug)->first();
+        $category = Categories::where('slug', $slug)->firstOrFail();
 
-        if($category){
-            $products = Product::where('product_category_id',$category->id)->paginate(20);
+        $products = Product::where('product_category_id', $category->id)
+            ->where('is_active', true)
+            ->paginate(20);
 
-            return view($this->themeFolder.'.category_by_slug', [
-                'slug' => $slug, 
-                'category' => $category,
-                'products' => $products,
-            ]);
-        }else{
-            return abort(404);
-        }
+        return view("theme.{$this->themeFolder}.category_by_slug", [
+            'title' => "Kategori: {$category->name}",
+            'category' => $category,
+            'products' => $products,
+        ]);
     }
 
+    // Halaman keranjang
     public function cart()
     {
-        $cart = Cart::query()
-            ->with(
-                [
-                    'items',
-                    'items.itemable'
-                ]
-            )
-            ->where('user_id', auth()->guard('customer')->user()->id)
-            ->first();
-        
+        $user = auth()->guard('customer')->user();
 
-        return view($this->themeFolder.'.cart',[
-            'title'=>'Cart',
+        if (!$user) {
+            return redirect()->route('customer.login')->with('error', 'Silakan login terlebih dahulu untuk melihat keranjang.');
+        }
+
+        $cart = Cart::with(['items', 'items.itemable'])
+            ->where('user_id', $user->id)
+            ->first();
+
+        return view("theme.{$this->themeFolder}.cart", [
+            'title' => 'Keranjang',
             'cart' => $cart,
         ]);
     }
 
+    // Halaman checkout
     public function checkout()
     {
-        return view($this->themeFolder.'.checkout',[
-            'title'=>'Checkout'
+        return view("theme.{$this->themeFolder}.checkout", [
+            'title' => 'Checkout'
         ]);
     }
 }

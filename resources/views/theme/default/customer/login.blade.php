@@ -1,5 +1,15 @@
 <x-layout>
+<style>
+    body, html {
+        margin: 0;
+        padding: 50;
+        background-color: #8B0000;
+    }
 
+    .container {
+        background-color: transparent !important;
+    }
+</style>
     <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
         <div class="card shadow-sm p-4" style="min-width: 350px; max-width: 400px; width: 100%;">
             <h3 class="mb-4 text-center">Login</h3>
@@ -50,7 +60,7 @@
                     <input type="checkbox" class="form-check-input" id="remember" name="remember">
                     <label class="form-check-label" for="remember">Remember Me</label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <button type="submit" class="btn btn-warning w-100">Login</button>
                 <div class="mt-3 text-center">
                     <small>
                         Belum punya akun?

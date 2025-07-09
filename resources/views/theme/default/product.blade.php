@@ -1,5 +1,60 @@
 <x-layout>
     <x-slot name="title"> {{$product->name}}</x-slot>
+<style>
+    body, html {
+        margin: 0;
+        padding: 50;
+        background-color: #8B0000;
+        color: white; /* semua teks default jadi putih */
+    }
+
+    .container,
+    .row,
+    .col-md-6,
+    .col-12 {
+        background-color: transparent !important;
+    }
+
+    h1, h3, h4, .fw-bold, .fw-semibold, strong, .card-title {
+        color: white !important;
+    }
+
+    .text-muted, .list-group-item span, .list-group-item strong {
+        color: white !important;
+    }
+
+    .list-group-item {
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    .bg-light {
+        background-color: transparent !important;
+        border: 1px solid #fff2 !important;
+        color: white !important;
+    }
+
+    .form-control {
+        background-color: #fff2 !important;
+        color: #000 !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: #444 !important;
+        color: white;
+    }
+
+    .card-body .text-truncate {
+        color: #ccc !important;
+    }
+
+    .alert-info {
+        background-color: #444;
+        color: white;
+        border: none;
+    }
+</style>
+
 
     @if(session('error'))
         <div class="container mt-4">
@@ -13,8 +68,12 @@
     <div class="container my-5">
         <div class="row g-5 align-items-start">
             <div class="col-md-6">
-                <div class="bg-white shadow rounded p-3">
-                    <img src="{{ $product->image_url ?? 'https://via.placeholder.com/500x500' }}" class="img-fluid rounded w-100" alt="{{ $product->name }}">
+                <div class=" shadow rounded p-3">
+                     <img src="{{ $product->image_url ? asset($product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}"
+     class="card-img-top"
+     alt="{{ $product->name }}"
+     style="object-fit: cover; height: 400px;">
+
                 </div>
                 <div class="mt-3">
                     <span class="badge bg-secondary">{{ $product->category->name ?? 'Kategori Tidak Diketahui' }}</span>
@@ -35,9 +94,8 @@
                     @csrf
                     <div class="input-group" style="max-width: 320px;">
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        
                         <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ $product->stock }}">
-                        <button class="btn btn-primary" type="submit">
+                        <button class="btn btn-warning" type="submit">
                             <i class="bi bi-cart-plus me-1"></i> Tambah ke Keranjang
                         </button>
                     </div>
@@ -72,13 +130,16 @@
             @foreach($relatedProducts as $relatedProduct)
                 <div class="col">
                     <div class="card h-100 shadow-sm">
-                        <img src="{{ $relatedProduct->image_url ?? 'https://via.placeholder.com/350x200?text=No+Image' }}" class="card-img-top" alt="{{ $relatedProduct->name }}">
+                        <img src="{{ $relatedProduct->image_url ? asset($relatedProduct->image_url ) :'https://via.placeholder.com/350x200?text=No+Image' }}"
+                             class="card-img-top"
+                             alt="{{ $relatedProduct->name }}"
+                             style="height: 200px; object-fit: cover; width: 100%;">
                         <div class="card-body">
                             <h5 class="card-title">{{ $relatedProduct->name }}</h5>
-                            <p class="card-text text-truncate">{{ $relatedProduct->description }}</p>
+                            <p class="card-text text-black">{{ $relatedProduct->description }}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-primary">Rp {{ number_format($relatedProduct->price, 0, ',', '.') }}</span>
-                                <a href="{{ route('product.show', $relatedProduct->slug) }}" class="btn btn-outline-primary btn-sm">Lihat Detail</a>
+                                <a href="{{ route('product.show', $relatedProduct->slug) }}" class="btn btn-outline-warning btn-sm">Lihat Detail</a>
                             </div>
                         </div>
                     </div>
@@ -91,5 +152,4 @@
             @endif
         </div>
     </div>
-    
 </x-layout>

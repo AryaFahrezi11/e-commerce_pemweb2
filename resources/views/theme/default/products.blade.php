@@ -76,7 +76,9 @@
     </style>
     <div class="container py-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
-           <h3 class="text-warning" style="font-size: 1.5rem;">Product Kami</h3>
+           <h3 class="text-center " style="font-size: 1.5rem"> 
+    <i class="bi bi-grid-fill"></i> Kategori Produk
+</h3>
 
             <form action="{{ url()->current() }}" method="GET" class="d-flex" style="max-width: 300px;">
                 <input type="text" name="search" class="form-control me-2" placeholder="Cari produk..." value="{{ request('search') }}">

@@ -86,13 +86,14 @@
       }
    </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
    <x-navbar themeFolder="{{ $themeFolder }}" />
 
-   <div class="container-fluid py-4">
+   <!-- Konten utama -->
+   <main class="container-fluid py-4 flex-grow-1">
       {{ $slot }}
-   </div>
+   </main>
 
    <!-- Footer -->
    <footer class="text-white pt-4 mt-5" style="background: linear-gradient(135deg, rgba(17, 17, 17, 0.9) 0%, rgba(139, 0, 0, 0.9) 100%);">
@@ -114,30 +115,19 @@
                </ul>
             </div>
             <div class="col-md-3 mb-3">
-   <h6 class="mb-3 fw-bold">Kontak Kami</h6>
-   <ul class="list-unstyled small mb-2">
-      <li><i class="bi bi-envelope me-2"></i> info@irishkoffbakery.com</li>
-      <li><i class="bi bi-telephone me-2"></i> +62 856 6100 994</li>
-      <li><i class="bi bi-geo-alt me-2"></i> Jl. Mawar No.123, Tegal, Indonesia</li>
-   </ul>
-   <div class="d-flex gap-3 mt-2">
-      <a href="https://www.instagram.com/irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="Instagram">
-         <i class="bi bi-instagram"></i>
-      </a>
-      <a href="https://www.facebook.com/irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="Facebook">
-         <i class="bi bi-facebook"></i>
-      </a>
-      <a href="https://wa.me/628566100994" target="_blank" class="text-white fs-5" aria-label="WhatsApp">
-         <i class="bi bi-whatsapp"></i>
-      </a>
-      <a href="https://www.tiktok.com/@irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="TikTok">
-         <i class="bi bi-tiktok"></i>
-      </a>
-   </div>
-</div>
-
-</div>
-
+               <h6 class="mb-3 fw-bold">Kontak Kami</h6>
+               <ul class="list-unstyled small mb-2">
+                  <li><i class="bi bi-envelope me-2"></i> info@irishkoffbakery.com</li>
+                  <li><i class="bi bi-telephone me-2"></i> +62 856 6100 994</li>
+                  <li><i class="bi bi-geo-alt me-2"></i> Jl. Mawar No.123, Tegal, Indonesia</li>
+               </ul>
+               <div class="d-flex gap-3 mt-2">
+                  <a href="https://www.instagram.com/irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                  <a href="https://www.facebook.com/irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                  <a href="https://wa.me/628566100994" target="_blank" class="text-white fs-5" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                  <a href="https://www.tiktok.com/@irishkoffbakery" target="_blank" class="text-white fs-5" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+               </div>
+            </div>
          </div>
          <hr class="bg-secondary">
          <div class="text-center pb-3">
@@ -146,7 +136,6 @@
       </div>
    </footer>
 
-   <!-- Bootstrap JS -->
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
+
 </html>

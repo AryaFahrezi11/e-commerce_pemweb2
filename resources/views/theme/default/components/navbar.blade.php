@@ -1,3 +1,7 @@
+<!-- Tambahkan ini di <head> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <div>
     <style>
         .nav-link:hover,
@@ -17,16 +21,10 @@
         }
     </style>
 
-   <nav class="navbar navbar-expand-lg shadow-sm fixed-top" style="
-    background: linear-gradient(135deg, rgba(17, 17, 17, 0.85) 0%, rgba(92, 8, 8, 0.8) 94%, rgba(87, 8, 8, 0.8) 100%);
-    padding: 14px 24px;
-    transition: all 0.3s ease;
-    z-index: 1030;
-">
-
-
-
-
+   {{-- Navbar --}}
+    <nav class="navbar navbar-expand-lg shadow-sm fixed-top"
+        style="background: linear-gradient(135deg, rgba(17, 17, 17, 0.85) 0%, rgba(92, 8, 8, 0.8) 94%, rgba(87, 8, 8, 0.8) 100%);
+        padding: 14px 24px; transition: all 0.3s ease; z-index: 1030;">
         <div class="container">
             <a class="navbar-brand fw-bold text-white fs-4" href="/">Irish Koff and Bakery</a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
@@ -46,18 +44,20 @@
                     <li class="nav-item">
                         <a class="nav-link text-white fw-medium" href="/products">Produk</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold" href="{{ route('orders.index') }}">Pesanan Saya</a>
+                    </li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-3">
                     <x-cart-icon></x-cart-icon>
-
                     @if(auth()->guard('customer')->check())
                         <div class="dropdown">
-                            <a class="btn btn-outline-light dropdown-toggle px-3" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                            <a class="btn btn-outline-light dropdown-toggle px-3" href="#" role="button"
+                                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ Auth::guard('customer')->user()->name }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
                                 <li>
                                     <form method="POST" action="{{ route('customer.logout') }}">
@@ -75,4 +75,6 @@
             </div>
         </div>
     </nav>
+
+   
 </div>

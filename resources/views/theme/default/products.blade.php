@@ -1,16 +1,79 @@
 <x-layout>
     <x-slot name="title"> Products</x-slot>
+  
     <style>
-    body, html {
-        margin: 0;
-        
-        background-color: #8B0000;
-    }
+        body, html {
+            margin: 0;
+            padding: 50;
+            background: linear-gradient(135deg, #4a0000, #8B0000);
+            color: white;
+            min-height: 100vh;
+        }
 
-    .container {
-        background-color: transparent !important;
-    }
-</style>
+        .container {
+            background-color: transparent !important;
+        }
+
+        h3, h5, .fw-bold {
+            color: #ffc107 !important;
+        }
+
+        p, .card-text, .text-black {
+            color: #ddd !important;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+            border: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-warning:hover {
+            background-color: #000;
+            color: #ffc107;
+        }
+
+        .btn-outline-warning {
+            color: #ffc107;
+            border-color: #ffc107;
+            transition: 0.3s ease;
+        }
+
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .form-control::placeholder {
+            color: #ccc;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .alert-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffc107;
+        }
+    </style>
     <div class="container py-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
            <h3 class="text-warning" style="font-size: 1.5rem;">Product Kami</h3>

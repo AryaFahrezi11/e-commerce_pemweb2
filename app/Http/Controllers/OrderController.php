@@ -3,74 +3,112 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\CartItem;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    /**
+     * Tampilkan semua pesanan milik customer yang sedang login.
+     */
     public function index()
     {
-        // Eager load relationships to reduce queries
-        $orders = Order::with(
-            [
-                'customer', 
-                'items'=>function($query){
-                    $query->orderByDesc('created_at');
-                },
-                'items.product'
-            ]
-        )->withCount(['items'])
-        ->get();
+        $user = auth()->guard('customer')->user();
+
+        $orders = Order::where('customer_id', $user->id)
+            ->with([
+                'customer',
+                'items' => fn($query) => $query->orderByDesc('created_at'),
+                'items.product',
+            ])
+            ->withCount('items')
+            ->latest()
+            ->get();
 
         $orderData = [];
-        foreach($orders as $key=>$order)
-        {
-            $customer = $order->customer;
-            $items = $order->items;
+
+        foreach ($orders as $order) {
             $totalAmount = 0;
-            $itemsCount = count($order->items);   
-            $completedOrderExists = [];
+            $lastAddedToCart = null;
 
-            foreach($items as $keyItem=>$item)
-            {
-                $product = $item->product;
-                $totalAmount += $item->price * $item->quantity;
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $totalAmount += $item->price * $item->quantity;
+                }
 
-                if($keyItem === 0) {
-                    // Get the last added to cart time for the first item
+                if (!$lastAddedToCart || $item->created_at > $lastAddedToCart) {
                     $lastAddedToCart = $item->created_at;
                 }
             }
 
-            // Check if the order is completed
-            if($order->status === 'completed') {
-                $completedOrderExists = true;
-            }
-            else {
-                $completedOrderExists = false;
-            }
-
             $orderData[] = [
-                'order_id' => $order->id,
-                'customer_name' => $customer->name,
-                'total_amount' => $totalAmount,
-                'items_count' => $itemsCount,
-                'last_added_to_cart' => $lastAddedToCart,
-                'completed_order_exists' => $completedOrderExists,
-                'created_at' => $order->created_at,
-                'completed_at'=> $completedOrderExists ? $order->completed_at : null,
+                'order_id'               => $order->id,
+                'customer_name'          => optional($order->customer)->name ?? '-',
+                'total_amount'           => $totalAmount,
+                'items_count'            => $order->items_count ?? 0,
+                'last_added_to_cart'     => $lastAddedToCart,
+                'payment_method'         => $order->payment_method ?? '-',
+                'status'                 => $order->status ?? 'pending',
+                'created_at'             => $order->created_at,
+                'completed_order_exists' => $order->status === 'completed',
+                'completed_at'           => in_array($order->status, ['completed', 'cancelled']) ? $order->updated_at : null,
             ];
         }
 
-        
-        // Sort by completed_at descending, nulls last
-        usort($orderData, function($a, $b) {
-            $aCompletedAt = $a['completed_at'] ? strtotime($a['completed_at']) : 0;
-            $bCompletedAt = $b['completed_at'] ? strtotime($b['completed_at']) : 0;
-            return strtotime($bCompletedAt) - strtotime($aCompletedAt);
+        usort($orderData, function ($a, $b) {
+            return strtotime($b['completed_at'] ?? '1970-01-01') - strtotime($a['completed_at'] ?? '1970-01-01');
         });
 
-        return view('orders.index', ['orders' => $orderData]);
+        return view('theme.default.customer.my-orders', ['orders' => $orderData]);
+    }
+
+    /**
+     * Membatalkan pesanan yang masih pending.
+     */
+    public function cancel($id)
+    {
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::where('id', $id)
+            ->where('customer_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    /**
+     * Tampilkan detail pesanan.
+     */
+    public function show($id)
+    {
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::with(['items.product', 'customer'])
+            ->where('id', $id)
+            ->where('customer_id', $user->id)
+            ->firstOrFail();
+
+        return view('theme.default.customer.order-details', compact('order'));
+    }
+
+    /**
+     * Tampilkan halaman invoice (resi) untuk dicetak.
+     */
+    public function invoice($id)
+    {
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::with(['items.product', 'customer'])
+            ->where('id', $id)
+            ->where('customer_id', $user->id)
+            ->firstOrFail();
+
+        return view('theme.default.customer.order-invoice', compact('order'));
     }
 }
-

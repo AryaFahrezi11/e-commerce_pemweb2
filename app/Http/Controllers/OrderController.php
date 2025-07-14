@@ -8,107 +8,47 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     /**
-     * Tampilkan semua pesanan milik customer yang sedang login.
+     * Menampilkan daftar pesanan milik customer yang sedang login.
      */
     public function index()
     {
         $user = auth()->guard('customer')->user();
 
+        if (!$user) {
+            return redirect()->route('customer.login')
+                ->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        // Ambil semua pesanan customer dengan relasi itemable
         $orders = Order::where('customer_id', $user->id)
-            ->with([
-                'customer',
-                'items' => fn($query) => $query->orderByDesc('created_at'),
-                'items.product',
-            ])
-            ->withCount('items')
+            ->with(['items.itemable'])
             ->latest()
             ->get();
 
-        $orderData = [];
-
-        foreach ($orders as $order) {
-            $totalAmount = 0;
-            $lastAddedToCart = null;
-
-            foreach ($order->items as $item) {
-                if ($item->product) {
-                    $totalAmount += $item->price * $item->quantity;
-                }
-
-                if (!$lastAddedToCart || $item->created_at > $lastAddedToCart) {
-                    $lastAddedToCart = $item->created_at;
-                }
-            }
-
-            $orderData[] = [
-                'order_id'               => $order->id,
-                'customer_name'          => optional($order->customer)->name ?? '-',
-                'total_amount'           => $totalAmount,
-                'items_count'            => $order->items_count ?? 0,
-                'last_added_to_cart'     => $lastAddedToCart,
-                'payment_method'         => $order->payment_method ?? '-',
-                'status'                 => $order->status ?? 'pending',
-                'created_at'             => $order->created_at,
-                'completed_order_exists' => $order->status === 'completed',
-                'completed_at'           => in_array($order->status, ['completed', 'cancelled']) ? $order->updated_at : null,
-            ];
-        }
-
-        usort($orderData, function ($a, $b) {
-            return strtotime($b['completed_at'] ?? '1970-01-01') - strtotime($a['completed_at'] ?? '1970-01-01');
-        });
-
-        return view('theme.default.customer.my-orders', ['orders' => $orderData]);
+        // View: resources/views/orders/index.blade.php
+        return view('orders.index', compact('orders'));
     }
 
     /**
-     * Membatalkan pesanan yang masih pending.
-     */
-    public function cancel($id)
-    {
-        $user = auth()->guard('customer')->user();
-
-        $order = Order::where('id', $id)
-            ->where('customer_id', $user->id)
-            ->where('status', 'pending')
-            ->first();
-
-        if (!$order) {
-            return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
-        }
-
-        $order->update(['status' => 'cancelled']);
-
-        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
-    }
-
-    /**
-     * Tampilkan detail pesanan.
+     * Menampilkan detail dari pesanan tertentu milik customer.
      */
     public function show($id)
     {
         $user = auth()->guard('customer')->user();
 
-        $order = Order::with(['items.product', 'customer'])
-            ->where('id', $id)
-            ->where('customer_id', $user->id)
-            ->firstOrFail();
+        if (!$user) {
+            return redirect()->route('customer.login')
+                ->with('error', 'Silakan login terlebih dahulu.');
+        }
 
-        return view('theme.default.customer.order-details', compact('order'));
+        // Cari order berdasarkan ID dan milik user yang login
+        $order = Order::where('customer_id', $user->id)
+            ->with(['items.itemable'])
+            ->findOrFail($id);
+
+        // Pastikan file view ini tersedia
+        return view('orders.show', compact('order'));
     }
 
-    /**
-     * Tampilkan halaman invoice (resi) untuk dicetak.
-     */
-    public function invoice($id)
-    {
-        $user = auth()->guard('customer')->user();
-
-        $order = Order::with(['items.product', 'customer'])
-            ->where('id', $id)
-            ->where('customer_id', $user->id)
-            ->firstOrFail();
-
-        return view('theme.default.customer.order-invoice', compact('order'));
-    }
+    // Opsional: jika kamu ingin fitur batal pesanan & cetak invoice, tambahkan method cancel() dan invoice()
 }

@@ -91,7 +91,8 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibuat!');
+           return redirect('/my-orders')->with('success', 'Pesanan berhasil dibuat!');
+
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan saat memproses pesanan: ' . $e->getMessage());

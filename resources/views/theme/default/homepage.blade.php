@@ -4,7 +4,7 @@
     <style>
         body, html {
             margin: 0;
-            padding: 50;
+            padding: 0;
             background: linear-gradient(135deg, #4a0000, #8B0000);
             min-height: 100vh;
         }
@@ -68,7 +68,7 @@
     </style>
 
     {{-- KATEGORI --}}
-    <div class="container py-4">
+    <div class="kategory container py-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="text-warning">Kategori Menu</h3>
             <a href="{{ url('/categories') }}" class="btn btn-outline-warning btn-sm">Lihat Semua Kategori</a>

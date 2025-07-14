@@ -4,7 +4,7 @@
     <style>
         body, html {
             margin: 0;
-            padding: 50;
+            padding: 0;
             background: linear-gradient(135deg, #4a0000, #8B0000);
             min-height: 100vh;
         }
@@ -61,8 +61,35 @@
     </style>
 
     <div class="container my-5">
+
+        {{-- Flash message --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        {{-- Validation errors --}}
+        @if ($errors->any())
+            <div class="alert alert-warning text-dark">
+                <ul class="mb-0 ps-3">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="row g-4">
-            <!-- Form Pemesanan -->
+            {{-- Form Pemesanan --}}
             <div class="col-md-6">
                 <div class="card p-4">
                     <h4 class="mb-4 text-warning text-center">Data Pemesan</h4>
@@ -71,54 +98,55 @@
 
                         <div class="mb-3">
                             <label for="name" class="form-label">Nama</label>
-                            <input type="text" name="name" class="form-control" id="name" required>
+                            <input type="text" name="name" class="form-control" id="name" required value="{{ old('name') }}">
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">No. HP</label>
-                            <input type="text" name="phone" class="form-control" id="phone" required>
+                            <input type="text" name="phone" class="form-control" id="phone" required value="{{ old('phone') }}">
                         </div>
                         <div class="mb-3">
                             <label for="address" class="form-label">Alamat Lengkap</label>
-                            <textarea name="address" class="form-control" id="address" rows="3" placeholder="Jl. Mawar No.123, RT/RW 04/05" required></textarea>
+                            <textarea name="address" class="form-control" id="address" rows="3" required>{{ old('address') }}</textarea>
                         </div>
+
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label for="city" class="form-label">Kota</label>
-                                <input type="text" name="city" class="form-control" id="city" required>
+                                <input type="text" name="city" class="form-control" id="city" required value="{{ old('city') }}">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="province" class="form-label">Provinsi</label>
-                                <input type="text" name="province" class="form-control" id="province" required>
+                                <input type="text" name="province" class="form-control" id="province" required value="{{ old('province') }}">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="postal_code" class="form-label">Kode Pos</label>
-                                <input type="text" name="postal_code" class="form-control" id="postal_code" required>
+                                <input type="text" name="postal_code" class="form-control" id="postal_code" required value="{{ old('postal_code') }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="note" class="form-label">Catatan Tambahan</label>
-                            <textarea name="note" class="form-control" rows="2" placeholder="Contoh: tanpa es, sambalnya pisah..."></textarea>
+                            <textarea name="note" class="form-control" rows="2">{{ old('note') }}</textarea>
                         </div>
 
                         <h5 class="mt-4 mb-3 text-warning">Metode Pembayaran</h5>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="COD" checked>
+                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="COD" {{ old('payment_method', 'COD') === 'COD' ? 'checked' : '' }}>
                             <label class="form-check-label" for="cod">Bayar di Tempat (COD)</label>
                         </div>
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="payment_method" id="transfer" value="Transfer">
+                            <input class="form-check-input" type="radio" name="payment_method" id="transfer" value="Transfer" {{ old('payment_method') === 'Transfer' ? 'checked' : '' }}>
                             <label class="form-check-label" for="transfer">Transfer Bank (BCA/Mandiri)</label>
                         </div>
 
-                        <div id="bankDetails" class="hidden mt-3">
+                        <div id="bankDetails" class="{{ old('payment_method') === 'Transfer' ? '' : 'hidden' }} mt-3">
                             <div class="mb-3">
                                 <label for="bank_name" class="form-label">Nama Bank</label>
-                                <input type="text" name="bank_name" class="form-control" id="bank_name" placeholder="Contoh: BCA, Mandiri">
+                                <input type="text" name="bank_name" class="form-control" id="bank_name" placeholder="Contoh: BCA, Mandiri" value="{{ old('bank_name') }}">
                             </div>
                             <div class="mb-3">
                                 <label for="account_number" class="form-label">Nomor Rekening</label>
-                                <input type="text" name="account_number" class="form-control" id="account_number" placeholder="1234567890">
+                                <input type="text" name="account_number" class="form-control" id="account_number" placeholder="1234567890" value="{{ old('account_number') }}">
                             </div>
                         </div>
 
@@ -127,44 +155,50 @@
                 </div>
             </div>
 
-            <!-- Ringkasan Pesanan -->
+            {{-- Ringkasan Pesanan --}}
             <div class="col-md-6">
                 <div class="card p-4 text-white h-100">
                     <div class="card-body d-flex flex-column justify-content-between">
                         <div>
                             <h5 class="card-title mb-3 text-warning">Ringkasan Pesanan</h5>
 
-                            @foreach($cart->items as $item)
-                                <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                    <div>
-                                        <strong>{{ $item->itemable->name }}</strong><br>
-                                        <small>{{ $item->quantity }} × Rp.{{ number_format($item->itemable->price, 0, ',', '.') }}</small>
+                            @if(isset($cart) && count($cart->items) > 0)
+                                @foreach($cart->items as $item)
+                                    <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                        <div>
+                                            <strong>{{ $item->itemable->name }}</strong><br>
+                                            <small>{{ $item->quantity }} × Rp.{{ number_format($item->itemable->price, 0, ',', '.') }}</small>
+                                        </div>
+                                        <span>Rp.{{ number_format($item->itemable->price * $item->quantity, 0, ',', '.') }}</span>
                                     </div>
-                                    <span>Rp.{{ number_format($item->itemable->price * $item->quantity, 0, ',', '.') }}</span>
+                                @endforeach
+
+                                @php
+                                    $subtotal = $cart->calculatedPriceByQuantity();
+                                    $shippingCost = $subtotal >= 50000 ? 0 : 5000;
+                                @endphp
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal</span>
+                                    <span>Rp.{{ number_format($subtotal, 0, ',', '.') }}</span>
                                 </div>
-                            @endforeach
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Ongkir</span>
+                                    <span>Rp.{{ number_format($shippingCost, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between fw-bold text-warning fs-5">
+                                    <span>Total</span>
+                                    <span>Rp.{{ number_format($subtotal + $shippingCost, 0, ',', '.') }}</span>
+                                </div>
 
-                            @php
-                                $subtotal = $cart->calculatedPriceByQuantity();
-                                $shippingCost = $subtotal >= 50000 ? 0 : 5000;
-                            @endphp
-
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal</span>
-                                <span>Rp.{{ number_format($subtotal, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Ongkir</span>
-                                <span>Rp.{{ number_format($shippingCost, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between fw-bold text-warning fs-5">
-                                <span>Total</span>
-                                <span>Rp.{{ number_format($subtotal + $shippingCost, 0, ',', '.') }}</span>
-                            </div>
-
-                            @if($subtotal < 50000)
-                                <div class="alert alert-info text-dark mt-3">
-                                    Gratis ongkir untuk pesanan di atas Rp. 50.000!
+                                @if($subtotal < 50000)
+                                    <div class="alert alert-info text-dark mt-3">
+                                        Gratis ongkir untuk pesanan di atas Rp. 50.000!
+                                    </div>
+                                @endif
+                            @else
+                                <div class="alert alert-warning text-center">
+                                    Keranjang kamu kosong. Silakan kembali ke keranjang untuk menambahkan pesanan.
                                 </div>
                             @endif
                         </div>
@@ -175,7 +209,7 @@
         </div>
     </div>
 
-    {{-- Toggle Form Transfer Bank --}}
+    {{-- Toggle Transfer Bank --}}
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const cod = document.getElementById('cod');
@@ -188,6 +222,8 @@
 
             cod.addEventListener('change', toggleBank);
             transfer.addEventListener('change', toggleBank);
+
+            toggleBank(); // initialize on load
         });
     </script>
 </x-layout>

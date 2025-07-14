@@ -1,54 +1,114 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Http\Controllers;
 
-return new class extends Migration
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
 {
     /**
-     * Jalankan migrasi.
+     * Tampilkan semua pesanan milik customer yang sedang login.
      */
-    public function up(): void
+    public function index()
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
+        $user = auth()->guard('customer')->user();
 
-            // Relasi dengan tabel customers
-            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+        $orders = Order::where('customer_id', $user->id)
+            ->with([
+                'customer',
+                'items' => fn($query) => $query->orderByDesc('created_at'),
+                'items.product',
+            ])
+            ->withCount('items')
+            ->latest()
+            ->get();
 
-            // Informasi pelanggan
-            $table->string('name');
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
+        $orderData = [];
 
-            // Alamat lengkap
-            $table->string('address');
-            $table->string('city')->nullable();
-            $table->string('province')->nullable();
-            $table->string('postal_code')->nullable();
+        foreach ($orders as $order) {
+            $totalAmount = 0;
+            $lastAddedToCart = null;
 
-            // Informasi pesanan
-            $table->date('order_date')->default(now());
-            $table->decimal('subtotal', 10, 2)->default(0);
-            $table->decimal('shipping_cost', 10, 2)->default(0);
-            $table->decimal('total_amount', 10, 2)->default(0.00);
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $totalAmount += $item->price * $item->quantity;
+                }
 
-            // Metode pembayaran
-            $table->enum('payment_method', ['cod', 'transfer'])->default('cod');
+                if (!$lastAddedToCart || $item->created_at > $lastAddedToCart) {
+                    $lastAddedToCart = $item->created_at;
+                }
+            }
 
-            // Status pesanan
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+            $orderData[] = [
+                'order_id'               => $order->id,
+                'customer_name'          => $order->customer_name ?? optional($order->customer)->name ?? '-',
+                'total_amount'           => $totalAmount,
+                'items_count'            => $order->items_count ?? 0,
+                'last_added_to_cart'     => $lastAddedToCart,
+                'payment_method'         => $order->payment_method ?? '-',
+                'status'                 => $order->status ?? 'pending',
+                'created_at'             => $order->created_at,
+                'completed_order_exists' => $order->status === 'completed',
+                'completed_at'           => in_array($order->status, ['completed', 'cancelled']) ? $order->updated_at : null,
+            ];
+        }
 
-            $table->timestamps();
+        usort($orderData, function ($a, $b) {
+            return strtotime($b['completed_at'] ?? '1970-01-01') - strtotime($a['completed_at'] ?? '1970-01-01');
         });
+
+        return view('theme.default.customer.my-orders', ['orders' => $orderData]);
     }
 
     /**
-     * Rollback migrasi.
+     * Membatalkan pesanan yang masih pending.
      */
-    public function down(): void
+    public function cancel($id)
     {
-        Schema::dropIfExists('orders');
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::where('id', $id)
+            ->where('customer_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+        }
+
+        $order->update(['status' => 'cancelled']);
+
+        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan.');
     }
-};
+
+    /**
+     * Tampilkan detail pesanan.
+     */
+    public function show($id)
+    {
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::with(['items.product', 'customer'])
+            ->where('id', $id)
+            ->where('customer_id', $user->id)
+            ->firstOrFail();
+
+        return view('theme.default.customer.order-details', compact('order'));
+    }
+
+    /**
+     * Tampilkan halaman invoice (resi) untuk dicetak.
+     */
+    public function invoice($id)
+    {
+        $user = auth()->guard('customer')->user();
+
+        $order = Order::with(['items.product', 'customer'])
+            ->where('id', $id)
+            ->where('customer_id', $user->id)
+            ->firstOrFail();
+
+        return view('theme.default.customer.order-invoice', compact('order'));
+    }
+}

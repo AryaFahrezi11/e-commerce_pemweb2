@@ -79,11 +79,13 @@
                     <a href="{{ url('/category/'.$category->slug) }}" class="text-decoration-none">
                         <div class="card category-card text-center h-100 py-3 border-0 shadow-sm">
                             <div class="category-image-container mx-auto mb-3">
-                                <img src="{{ $category->image }}" alt="{{ $category->name }}">
+                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}">
                             </div>
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1 text-warning">{{ $category->name }}</h6>
-                                <p class="card-text text-muted small text-truncate">{{ $category->description }}</p>
+                                <p class="card-text text-muted small text-truncate" title="{{ $category->description }}">
+                                    {{ $category->description }}
+                                </p>
                             </div>
                         </div>
                     </a>
@@ -103,13 +105,15 @@
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="card product-card h-100 shadow-sm">
                         <img 
-                            src="{{ $product->image_url ?: 'https://via.placeholder.com/350x200?text=No+Image' }}" 
+                            src="{{ $product->image_url ? asset('storage/' . $product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}" 
                             class="card-img-top" 
                             alt="{{ $product->name }}"
                             style="object-fit: cover; height: 180px; border-top-left-radius: 12px; border-top-right-radius: 12px;">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title text-warning">{{ $product->name }}</h5>
-                            <p class="card-text text-muted text-truncate">{{ $product->description }}</p>
+                            <p class="card-text text-muted text-truncate" title="{{ $product->description }}">
+                                {{ $product->description }}
+                            </p>
                             <div class="mt-auto d-flex justify-content-between align-items-center">
                                 <span class="fw-bold text-warning">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                                 <a href="{{ route('product.show', $product->slug) }}" class="btn btn-outline-warning btn-sm">Lihat Detail</a>
@@ -119,7 +123,7 @@
                 </div>
             @empty
                 <div class="col">
-                    <div class="alert alert-info text-center">Belum ada produk pada kategori ini.</div>
+                    <div class="alert alert-info text-center">Belum ada produk yang tersedia.</div>
                 </div>
             @endforelse
         </div>

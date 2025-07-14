@@ -89,7 +89,7 @@
             @forelse($products as $product)
                 <div class="col-md-3 mb-4">
                     <div class="card product-card h-100 shadow-sm">
-                        <img src="{{ $product->image_url ? $product->image_url : 'https://via.placeholder.com/350x200?text=No+Image' }}" 
+                        <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}" 
                              class="card-img-top" 
                              alt="{{ $product->name }}"
                              style="height: 200px; object-fit: cover; width: 100%;">

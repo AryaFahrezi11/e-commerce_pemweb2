@@ -108,7 +108,7 @@
         <div class="row g-5 align-items-start">
             <div class="col-md-6">
                 <div class="shadow rounded p-2">
-                    <img src="{{ $product->image_url ? asset($product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}"
+                    <img src="{{ $product->image_url ? asset('storage/' . $product->image_url) : 'https://via.placeholder.com/350x200?text=No+Image' }}"
                          class="card-img-top rounded"
                          alt="{{ $product->name }}"
                          style="object-fit: cover; height: 400px; width: 100%;">

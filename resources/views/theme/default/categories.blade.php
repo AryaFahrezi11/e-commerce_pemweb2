@@ -90,7 +90,7 @@
                     <a href="{{ URL::to('/category/'.$category->slug) }}" class="text-decoration-none">
                         <div class="card category-card h-100 py-3 border-0 shadow-sm">
                             <div class="mx-auto mb-2 category-image-circle">
-                                <img src="{{ $category->image }}" alt="{{ $category->name }}">
+                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}">
                             </div>
                             <div class="card-body p-2">
                                 <h6 class="card-title mb-1">{{ $category->name }}</h6>

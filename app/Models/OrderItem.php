@@ -8,32 +8,22 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class OrderItem extends Model
 {
-    // Gunakan nama tabel 'order_items' agar konsisten dengan migrasi
-    protected $table = 'order_items';
-
-    // Kolom yang bisa diisi secara massal
     protected $fillable = [
         'order_id',
-        'itemable_id',
-        'itemable_type',
+        'product_id',
         'quantity',
-        'price',    // harga satuan saat order dibuat
-        'total',    // quantity * price
+        'price',
+        'total',
     ];
 
-    /**
-     * Relasi: OrderItem ini milik satu Order
-     */
-    public function order(): BelongsTo
+    public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    /**
-     * Relasi polymorphic: OrderItem ini berelasi ke itemable (Product, dll)
-     */
-    public function itemable(): MorphTo
+    public function product()
     {
-        return $this->morphTo();
+        return $this->belongsTo(Product::class);
     }
 }
+

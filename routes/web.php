@@ -50,6 +50,7 @@ Route::middleware(['is_customer_login'])->group(function () {
     // ✅ Checkout Routes
     Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
     // ✅ My Orders Routes
     Route::prefix('my-orders')->name('orders.')->controller(OrderController::class)->group(function () {

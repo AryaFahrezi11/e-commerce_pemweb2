@@ -145,7 +145,7 @@
                <h6>Kontak Kami</h6>
                <ul class="list-unstyled small">
                   <li><i class="bi bi-envelope me-1"></i> info@irishkoffbakery.com</li>
-                  <li><i class="bi bi-telephone me-1"></i> +62 856 6100 994</li>
+                  <li><i class="bi bi-telephone me-1"></i> +62895377327233</li>
                   <li><i class="bi bi-geo-alt me-1"></i> Tegal, Indonesia</li>
                </ul>
             </div>
